@@ -1,0 +1,7 @@
+{
+  "name": "Site Security and Surveillance",
+  "description": "A comprehensive website activity, performance, and security monitoring hub powered by Gemini AI. Track uptime, detect breaches, and analyze site strengths/weaknesses.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
