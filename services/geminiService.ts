@@ -12,7 +12,12 @@ export const performAIAnalysis = async (url: string): Promise<AIAnalysis> => {
   2. Potential security breaches or common vulnerabilities associated with such sites.
   3. Cyber crime activity detection (simulated common patterns).
   4. Specific recommendations for improvement.
-  5. A structured list of 3-5 specific vulnerabilities (simulated for this URL type) with remediation steps.`;
+  5. A structured list of 3-5 specific vulnerabilities (simulated for this URL type). 
+     For each vulnerability, provide:
+     - A clear title and description.
+     - Severity (critical, high, medium, low).
+     - A general remediation summary.
+     - A list of at least 3-5 detailed, step-by-step technical remediation instructions.`;
 
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
@@ -56,9 +61,14 @@ export const performAIAnalysis = async (url: string): Promise<AIAnalysis> => {
                 description: { type: Type.STRING },
                 severity: { type: Type.STRING, enum: ['critical', 'high', 'medium', 'low'] },
                 status: { type: Type.STRING, enum: ['detected'] },
-                remediation: { type: Type.STRING }
+                remediation: { type: Type.STRING },
+                detailedSteps: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                  description: "Step-by-step technical instructions to fix the vulnerability."
+                }
               },
-              required: ["id", "title", "description", "severity", "status", "remediation"]
+              required: ["id", "title", "description", "severity", "status", "remediation", "detailedSteps"]
             }
           }
         },
@@ -67,5 +77,16 @@ export const performAIAnalysis = async (url: string): Promise<AIAnalysis> => {
     }
   });
 
-  return JSON.parse(response.text.trim());
+  const parsed = JSON.parse(response.text.trim());
+  
+  // Inject detectedAt timestamp for simulation consistency
+  if (parsed.vulnerabilities) {
+    const now = new Date();
+    parsed.vulnerabilities = parsed.vulnerabilities.map((v: any, idx: number) => ({
+      ...v,
+      detectedAt: new Date(now.getTime() - (idx * 1000 * 60 * 15)).toISOString()
+    }));
+  }
+
+  return parsed;
 };

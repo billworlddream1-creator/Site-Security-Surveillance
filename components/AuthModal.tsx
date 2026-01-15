@@ -39,7 +39,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onLogin }) => {
           <div className="w-14 h-14 md:w-16 md:h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
           </div>
-          <h2 className="text-xl md:text-2xl font-bold">Site Security & Surveillance</h2>
+          <h2 className="text-xl md:text-2xl font-bold">Site Security and Surveillance (GMT SSS)</h2>
           <p className="text-indigo-100 text-xs md:text-sm mt-1">Strategic AI Site Surveillance & Analysis</p>
         </div>
 
@@ -140,7 +140,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ onLogin }) => {
             </button>
           </form>
           <p className="mt-6 md:mt-8 text-[10px] text-center text-slate-400 leading-relaxed max-w-[280px] mx-auto">
-            By continuing, you agree to Site Security & Surveillance's 
+            By continuing, you agree to Site Security and Surveillance (GMT SSS)'s 
             <button className="text-indigo-600 mx-1 hover:underline">Terms of Service</button> and 
             <button className="text-indigo-600 mx-1 hover:underline">Privacy Policy</button>.
           </p>

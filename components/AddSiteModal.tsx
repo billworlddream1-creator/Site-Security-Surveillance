@@ -11,7 +11,7 @@ const AddSiteModal: React.FC<AddSiteModalProps> = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     name: '',
     url: '',
-    description: ''
+    tags: ''
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +36,12 @@ const AddSiteModal: React.FC<AddSiteModalProps> = ({ onClose, onSubmit }) => {
 
     if (!formData.url) return;
 
+    // Process tags
+    const tags = formData.tags
+      .split(',')
+      .map(t => t.trim())
+      .filter(t => t.length > 0);
+
     const newSite: Website = {
       id: Math.random().toString(36).substr(2, 9),
       name: nameToValidate,
@@ -44,7 +50,8 @@ const AddSiteModal: React.FC<AddSiteModalProps> = ({ onClose, onSubmit }) => {
       uptime: 100,
       responseTime: 0,
       lastChecked: new Date().toISOString(),
-      addedAt: new Date().toISOString().split('T')[0]
+      addedAt: new Date().toISOString().split('T')[0],
+      tags: tags.length > 0 ? tags : undefined
     };
 
     onSubmit(newSite);
@@ -94,12 +101,15 @@ const AddSiteModal: React.FC<AddSiteModalProps> = ({ onClose, onSubmit }) => {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Initial Goal</label>
-            <select className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all">
-              <option>Performance & Uptime</option>
-              <option>Security Surveillance</option>
-              <option>Both</option>
-            </select>
+            <label className="text-sm font-bold text-slate-700 uppercase tracking-wide">Tags (Optional)</label>
+            <input 
+              type="text" 
+              placeholder="e.g. Retail, Production, Marketing"
+              className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+              value={formData.tags}
+              onChange={e => setFormData({...formData, tags: e.target.value})}
+            />
+            <p className="text-[10px] text-slate-400 font-medium">Separate multiple tags with commas.</p>
           </div>
 
           <div className="flex gap-4 pt-4">

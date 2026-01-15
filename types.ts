@@ -1,4 +1,10 @@
 
+export interface AlertThresholds {
+  latencyMs: number;
+  errorRatePercent: number;
+  uptimePercent: number;
+}
+
 export interface Website {
   id: string;
   url: string;
@@ -8,6 +14,10 @@ export interface Website {
   responseTime: number;
   lastChecked: string;
   addedAt: string;
+  uptimeSLA?: number;
+  thresholds?: AlertThresholds;
+  ownerId?: string;
+  tags?: string[];
 }
 
 export interface SecurityEvent {
@@ -19,13 +29,6 @@ export interface SecurityEvent {
   siteName: string;
 }
 
-export interface PerformanceMetric {
-  date: string;
-  visitors: number;
-  loadTime: number;
-  errorRate: number;
-}
-
 export interface Vulnerability {
   id: string;
   title: string;
@@ -33,6 +36,9 @@ export interface Vulnerability {
   severity: 'critical' | 'high' | 'medium' | 'low';
   status: 'detected' | 'fixing' | 'patched';
   remediation: string;
+  detailedSteps: string[];
+  detectedAt: string;
+  fixedAt?: string;
 }
 
 export interface AIAnalysis {
@@ -49,4 +55,22 @@ export enum TimeRange {
   WEEKLY = 'Weekly',
   MONTHLY = 'Monthly',
   YEARLY = 'Yearly'
+}
+
+export type PlanType = 'free' | 'weekly' | 'monthly' | 'yearly';
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  address: string;
+  plan: PlanType;
+  walletBalance: number;
+  subscriptionExpiry?: string;
+}
+
+export interface PaymentMethod {
+  id: 'paypal' | 'wallet';
+  label: string;
+  icon: string;
 }
