@@ -62,6 +62,7 @@ export type PlanType = 'free' | 'weekly' | 'monthly' | 'yearly';
 export interface UserProfile {
   id: string;
   email: string;
+  password?: string;
   name: string;
   address: string;
   plan: PlanType;

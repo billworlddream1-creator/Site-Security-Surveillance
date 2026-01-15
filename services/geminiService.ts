@@ -3,6 +3,7 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AIAnalysis } from "../types";
 
 export const performAIAnalysis = async (url: string): Promise<AIAnalysis> => {
+  // Always initialize GoogleGenAI with the API key from environment variables.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompt = `Analyze the website with URL: ${url}. 
@@ -19,8 +20,9 @@ export const performAIAnalysis = async (url: string): Promise<AIAnalysis> => {
      - A general remediation summary.
      - A list of at least 3-5 detailed, step-by-step technical remediation instructions.`;
 
+  // Fix: Used gemini-3-pro-preview for complex reasoning tasks as per guidelines.
   const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
+    model: 'gemini-3-pro-preview',
     contents: prompt,
     config: {
       responseMimeType: "application/json",
@@ -77,6 +79,7 @@ export const performAIAnalysis = async (url: string): Promise<AIAnalysis> => {
     }
   });
 
+  // Extract text directly using the .text property from GenerateContentResponse.
   const parsed = JSON.parse(response.text.trim());
   
   // Inject detectedAt timestamp for simulation consistency

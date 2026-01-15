@@ -18,13 +18,20 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   
-  const [user, setUser] = useState<UserProfile>({
-    id: 'usr_1',
-    email: 'admin@gmt-sss.io',
-    name: 'Chief Security Officer',
-    address: '123 Neural Way, Silicon Valley, CA',
-    plan: 'free',
-    walletBalance: 50.00
+  // Hardcoded initial admin credentials as requested
+  const [user, setUser] = useState<UserProfile>(() => {
+    const savedUser = localStorage.getItem('sentinel_user');
+    if (savedUser) return JSON.parse(savedUser);
+    
+    return {
+      id: 'usr_admin',
+      email: 'billworlddream1@gmail.com',
+      password: 'Billadad!!',
+      name: 'Global Admin',
+      address: '123 Neural Way, Silicon Valley, CA',
+      plan: 'monthly',
+      walletBalance: 250.00
+    };
   });
 
   const [websites, setWebsites] = useState<Website[]>([
@@ -44,7 +51,7 @@ const App: React.FC = () => {
     {
       id: '2',
       name: 'Portfolio Site',
-      url: 'https://johndoe.me',
+      url: 'https://johardoe.me',
       status: 'warning',
       uptime: 98.5,
       responseTime: 850,
@@ -67,6 +74,11 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'reports' | 'admin'>('dashboard');
   
   const [pendingPlan, setPendingPlan] = useState<{plan: PlanType, price: number} | null>(null);
+
+  // Persistence for user updates
+  useEffect(() => {
+    localStorage.setItem('sentinel_user', JSON.stringify(user));
+  }, [user]);
 
   const handleAddWebsite = (newSite: Website) => {
     setWebsites(prev => [newSite, ...prev]);
@@ -97,6 +109,10 @@ const App: React.FC = () => {
     setPendingPlan(null);
   };
 
+  const handleResetPassword = (newPassword: string) => {
+    setUser(prev => ({ ...prev, password: newPassword }));
+  };
+
   const selectedSite = websites.find(s => s.id === selectedSiteId);
 
   useEffect(() => {
@@ -114,7 +130,14 @@ const App: React.FC = () => {
   };
 
   if (!isLoggedIn) {
-    return <AuthModal onLogin={handleLogin} />;
+    return (
+      <AuthModal 
+        onLogin={handleLogin} 
+        adminEmail={user.email} 
+        adminPassword={user.password || ''} 
+        onResetPassword={handleResetPassword}
+      />
+    );
   }
 
   return (

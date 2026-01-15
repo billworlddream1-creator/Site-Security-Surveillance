@@ -28,6 +28,14 @@ const SiteList: React.FC<SiteListProps> = ({ websites, onSelectSite, onRemoveSit
     });
   };
 
+  const getSpeedGrade = (latency: number) => {
+    if (latency < 200) return { label: 'A', color: 'text-green-600 bg-green-50 border-green-100', text: 'Excellent' };
+    if (latency < 400) return { label: 'B', color: 'text-blue-600 bg-blue-50 border-blue-100', text: 'Good' };
+    if (latency < 700) return { label: 'C', color: 'text-yellow-600 bg-yellow-50 border-yellow-100', text: 'Average' };
+    if (latency < 1000) return { label: 'D', color: 'text-orange-600 bg-orange-50 border-orange-100', text: 'Poor' };
+    return { label: 'F', color: 'text-red-600 bg-red-50 border-red-100', text: 'Critical' };
+  };
+
   const getStatusBadge = (status: Website['status']) => {
     switch (status) {
       case 'online':
@@ -103,68 +111,76 @@ const SiteList: React.FC<SiteListProps> = ({ websites, onSelectSite, onRemoveSit
     }));
   }, [websites, sortBy, groupBy]);
 
-  const renderCard = (site: Website) => (
-    <div 
-      key={site.id} 
-      className="group bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg hover:border-indigo-200 transition-all duration-300 relative"
-    >
-      <div className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h3 className="font-bold text-lg text-slate-800 truncate max-w-[160px]">{site.name}</h3>
-              {getStatusBadge(site.status)}
+  const renderCard = (site: Website) => {
+    const speed = getSpeedGrade(site.responseTime);
+    return (
+      <div 
+        key={site.id} 
+        className="group bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-lg hover:border-indigo-200 transition-all duration-300 relative"
+      >
+        <div className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-lg text-slate-800 truncate max-w-[140px]">{site.name}</h3>
+                {getStatusBadge(site.status)}
+              </div>
+              <p className="text-xs text-slate-400 truncate max-w-[200px] font-medium">{site.url}</p>
+              {site.tags && site.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {site.tags.map(tag => (
+                    <span key={tag} className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">{tag}</span>
+                  ))}
+                </div>
+              )}
             </div>
-            <p className="text-xs text-slate-400 truncate max-w-[200px] font-medium">{site.url}</p>
-            {site.tags && site.tags.length > 0 && (
-               <div className="flex flex-wrap gap-1 mt-2">
-                 {site.tags.map(tag => (
-                   <span key={tag} className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">{tag}</span>
-                 ))}
-               </div>
-            )}
+            <div className="flex items-center gap-2">
+              <div className={`w-8 h-8 rounded-lg border flex items-center justify-center font-black text-sm ${speed.color}`} title={`Speed Score: ${speed.text}`}>
+                {speed.label}
+              </div>
+              <button 
+                onClick={(e) => { e.stopPropagation(); onRemoveSite(site.id); }}
+                className="text-slate-300 hover:text-red-500 p-1 hover:bg-red-50 rounded-md transition-all"
+                title="Remove property"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:bg-indigo-50/30 group-hover:border-indigo-100 transition-colors">
+              <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Uptime</p>
+              <p className={`text-lg font-black ${site.uptime < 99 ? 'text-amber-600' : 'text-slate-700'}`}>
+                {site.uptime}%
+              </p>
+            </div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:bg-indigo-50/30 group-hover:border-indigo-100 transition-colors">
+              <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Load Time</p>
+              <p className={`text-lg font-black ${site.responseTime > 500 ? 'text-orange-600' : 'text-slate-700'}`}>
+                {site.responseTime}ms
+              </p>
+            </div>
+          </div>
+
           <button 
-            onClick={(e) => { e.stopPropagation(); onRemoveSite(site.id); }}
-            className="text-slate-300 hover:text-red-500 p-1 hover:bg-red-50 rounded-md transition-all"
-            title="Remove property"
+            onClick={() => onSelectSite(site.id)}
+            className="w-full py-3 bg-slate-900 text-white rounded-xl hover:bg-indigo-600 transition-all font-bold text-sm flex items-center justify-center gap-2 group-hover:shadow-xl group-hover:shadow-indigo-200"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Intelligence Hub
+            <svg className="w-4 h-4 transform transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
           </button>
         </div>
-
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:bg-indigo-50/30 group-hover:border-indigo-100 transition-colors">
-            <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Uptime</p>
-            <p className={`text-lg font-black ${site.uptime < 99 ? 'text-amber-600' : 'text-slate-700'}`}>
-              {site.uptime}%
-            </p>
-          </div>
-          <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 group-hover:bg-indigo-50/30 group-hover:border-indigo-100 transition-colors">
-            <p className="text-[10px] uppercase font-bold text-slate-400 mb-1">Latency</p>
-            <p className="text-lg font-black text-slate-700">
-              {site.responseTime}ms
-            </p>
-          </div>
+        
+        <div className="h-1 w-full bg-slate-100 group-hover:bg-indigo-100 overflow-hidden">
+            <div 
+            className={`h-full transition-all duration-1000 ${site.status === 'online' ? 'bg-green-500' : site.status === 'warning' ? 'bg-amber-500' : 'bg-red-500'}`} 
+            style={{ width: `${site.uptime}%` }}
+            ></div>
         </div>
-
-        <button 
-          onClick={() => onSelectSite(site.id)}
-          className="w-full py-3 bg-slate-900 text-white rounded-xl hover:bg-indigo-600 transition-all font-bold text-sm flex items-center justify-center gap-2 group-hover:shadow-xl group-hover:shadow-indigo-200"
-        >
-          Intelligence Hub
-          <svg className="w-4 h-4 transform transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
-        </button>
       </div>
-      
-      <div className="h-1 w-full bg-slate-100 group-hover:bg-indigo-100 overflow-hidden">
-          <div 
-          className={`h-full transition-all duration-1000 ${site.status === 'online' ? 'bg-green-500' : site.status === 'warning' ? 'bg-amber-500' : 'bg-red-500'}`} 
-          style={{ width: `${site.uptime}%` }}
-          ></div>
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
