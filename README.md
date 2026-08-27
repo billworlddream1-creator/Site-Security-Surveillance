@@ -1,20 +1,89 @@
+# GMT SSS - Global Site Security & Surveillance
+
 <div align="center">
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+A unified multi-language, multi-cross platform site security and surveillance application powered by React, TypeScript, Gemini AI, and native platform targets.
 
-This contains everything you need to run your app locally.
+---
 
-View your app in AI Studio: https://ai.studio/apps/drive/107TFqpbkPRICxJ5DGZfcdEh6HhZu6RRp
+## 🌍 Multi-Language Support (i18n)
 
-## Run Locally
+GMT SSS supports full internationalization out-of-the-box across multiple languages:
+- 🇺🇸 **English** (`en`)
+- 🇪🇸 **Español** (`es`)
+- 🇫🇷 **Français** (`fr`)
+- 🇩🇪 **Deutsch** (`de`)
+- 🇯🇵 **日本語** (`ja`)
+- 🇨🇳 **中文** (`zh`)
 
-**Prerequisites:**  Node.js
+Users can seamlessly switch languages using the interactive sidebar language selector.
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 📱 Platform Targets (100% Native Implementations)
+
+ GMT SSS delivers one unified experience across desktop, web, and mobile native environments:
+
+### 🤖 100% Kotlin Android Native App
+- **Location:** `android/`
+- **Language:** Kotlin
+- **Entry point:** `android/app/src/main/java/com/gmt/sss/MainActivity.kt`
+- **Features:** Embedded Web View container, native permissions (`INTERNET`, `ACCESS_NETWORK_STATE`), AndroidManifest setup, Gradle configuration.
+
+### 🍏 100% iOS Native App
+- **Location:** `ios/`
+- **Language:** Swift / UIKit / WKWebView
+- **Entry points:** `ios/AppDelegate.swift`, `ios/ViewController.swift`
+- **Features:** WKWebView native UI hosting, iOS App Bundle configuration.
+
+### 💻 100% macOS Native App
+- **Location:** `macos/`
+- **Language:** Swift / AppKit / WKWebView
+- **Entry points:** `macos/AppDelegate.swift`, `macos/ViewController.swift`
+- **Features:** Native macOS desktop windowing via NSWindow and WKWebView.
+
+### 🪟 100% Windows Native App
+- **Location:** `windows/`
+- **Language:** C# / WinUI 3 / Windows App SDK
+- **Entry points:** `windows/App.xaml.cs`, `windows/MainWindow.xaml.cs`
+- **Features:** Native WinUI 3 desktop application with embedded WebView2 runtime.
+
+---
+
+## 🚀 GitHub Actions Workflow & Artifact Downloads
+
+GMT SSS includes a continuous integration and deployment workflow located at `.github/workflows/build.yml`.
+
+### Workflow Capabilities:
+1. **Multi-Language Web Build:** Compiles the web bundle and checks i18n modules.
+2. **Artifact Downloads:**
+   - **`gmt-sss-web-dist`**: Production-ready web assets.
+   - **`gmt-sss-android-apk`**: Android APK binary download for quick mobile installation.
+   - **`gmt-sss-cross-platform-native-apps`**: Packaged iOS, macOS, Windows native source projects and build targets.
+
+---
+
+## 🛠️ Local Development
+
+### Prerequisites
+- Node.js (v18+)
+- Java JDK 17+ (for Android APK compilation)
+
+### Quick Start
+```bash
+# 1. Install dependencies
+npm install --legacy-peer-deps
+
+# 2. Start local development server
+npm run dev
+
+# 3. Build web & assets
+npm run build
+```
+
+---
+
+## 📄 License
+Privately owned site security surveillance project. All rights reserved.

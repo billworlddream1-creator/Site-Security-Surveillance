@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Website, TimeRange, SecurityEvent, UserProfile, PlanType } from './types';
 import Sidebar from './components/Sidebar';
+import { Language, translations } from './i18n/translations';
 import StatsOverview from './components/StatsOverview';
 import SiteList from './components/SiteList';
 import SiteDetails from './components/SiteDetails';
@@ -68,12 +69,15 @@ const App: React.FC = () => {
     { id: 'ev2', severity: 'high', type: 'DDoS Cluster Detected', siteName: 'Portfolio Site', timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), description: 'Sudden spike of 50k requests from 3 regions' },
   ];
 
+  const [currentLang, setCurrentLang] = useState<Language>('en');
   const [selectedSiteId, setSelectedSiteId] = useState<string | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'security' | 'reports' | 'admin'>('dashboard');
   
   const [pendingPlan, setPendingPlan] = useState<{plan: PlanType, price: number} | null>(null);
+
+  const t = translations[currentLang] || translations.en;
 
   // Persistence for user updates
   useEffect(() => {
@@ -161,6 +165,9 @@ const App: React.FC = () => {
         isAdmin={isAdmin}
         onClose={() => setIsSidebarOpen(false)}
         userPlan={user.plan}
+        currentLang={currentLang}
+        onLanguageChange={setCurrentLang}
+        labels={t}
       />
 
       <main className="flex-1 overflow-y-auto bg-slate-50 text-slate-900 flex flex-col w-full">
@@ -172,11 +179,11 @@ const App: React.FC = () => {
             </button>
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-slate-800">
-                {activeTab === 'dashboard' ? 'Security Dashboard' : 
-                 activeTab === 'security' ? 'Threat Surveillance' : 
-                 activeTab === 'admin' ? 'Admin Portal' : 'Intelligence Reports'}
+                {activeTab === 'dashboard' ? t.dashboard :
+                 activeTab === 'security' ? t.security :
+                 activeTab === 'admin' ? t.admin : t.reports}
               </h1>
-              <p className="text-xs text-slate-500 hidden sm:block">Systems operational • Plan: <span className="uppercase font-bold text-indigo-600">{user.plan}</span></p>
+              <p className="text-xs text-slate-500 hidden sm:block">{t.systemsOperational} • {t.plan}: <span className="uppercase font-bold text-indigo-600">{user.plan}</span></p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -186,7 +193,7 @@ const App: React.FC = () => {
              </div>
              <button onClick={() => setIsAddModalOpen(true)} className="hidden md:flex px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all shadow-lg shadow-indigo-200 items-center gap-2 font-semibold">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                Monitor Site
+                {t.monitorSite}
               </button>
           </div>
         </div>
@@ -200,7 +207,7 @@ const App: React.FC = () => {
                   <div>
                     <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center gap-2">
                       <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                      Active Properties
+                      {t.activeProperties}
                     </h2>
                     <SiteList websites={websites} onSelectSite={setSelectedSiteId} onRemoveSite={handleRemoveWebsite} />
                   </div>
@@ -209,7 +216,7 @@ const App: React.FC = () => {
                 <div className="animate-in fade-in duration-500">
                   <button onClick={() => setSelectedSiteId(null)} className="mb-6 flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    Back to Overview
+                    {t.backToOverview}
                   </button>
                   {selectedSite && <SiteDetails site={selectedSite} onUpdate={(updates) => handleUpdateWebsite(selectedSite.id, updates)} />}
                 </div>
