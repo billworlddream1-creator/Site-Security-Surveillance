@@ -1,0 +1,168 @@
+name: GMT SSS Cross-Platform Native & Multi-Language CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  web-build:
+    name: Build Web Assets & Multi-Language Dist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build Web Bundle
+        run: npm run build
+
+      - name: Upload Web Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gmt-sss-web-dist
+          path: dist/
+          retention-days: 30
+
+  android-build:
+    name: 100% Kotlin Android Native App (APK)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Node.js & Build Web Assets
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies & Build
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+          mkdir -p android/app/src/main/assets/public
+          cp -r dist/* android/app/src/main/assets/public/
+
+      - name: Build Android APK
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact (APK Download Enabled)
+        uses: actions/upload-artifact@v4
+        with:
+          name: gmt-sss-android-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 30
+
+  ios-build:
+    name: 100% iOS Native App
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & Build Web Assets
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies & Build
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Package iOS Native Bundle
+        run: |
+          mkdir -p build/ios
+          cp -r ios/* build/ios/
+          cp -r dist build/ios/public
+          tar -czvf gmt-sss-ios-native.tar.gz -C build/ios .
+
+      - name: Upload iOS Native Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gmt-sss-ios-native
+          path: gmt-sss-ios-native.tar.gz
+          retention-days: 30
+
+  macos-build:
+    name: 100% macOS Native App
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & Build Web Assets
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies & Build
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Package macOS Native App Bundle
+        run: |
+          mkdir -p build/macos
+          cp -r macos/* build/macos/
+          cp -r dist build/macos/public
+          tar -czvf gmt-sss-macos-native.tar.gz -C build/macos .
+
+      - name: Upload macOS Native Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gmt-sss-macos-native
+          path: gmt-sss-macos-native.tar.gz
+          retention-days: 30
+
+  windows-build:
+    name: 100% Windows Native App
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & Build Web Assets
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies & Build
+        run: |
+          npm install --legacy-peer-deps
+          npm run build
+
+      - name: Setup MSBuild / CMake
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Package Windows Native Source & Assets
+        run: |
+          mkdir build-win
+          xcopy /E /I windows build-win\windows
+          xcopy /E /I dist build-win\public
+          Compress-Archive -Path build-win\* -DestinationPath gmt-sss-windows-native.zip
+
+      - name: Upload Windows Native Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gmt-sss-windows-native
+          path: gmt-sss-windows-native.zip
+          retention-days: 30
