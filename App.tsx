@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Website, TimeRange, SecurityEvent, UserProfile, PlanType } from './types';
 import Sidebar from './components/Sidebar';
@@ -12,12 +11,17 @@ import ReportGenerator from './components/ReportGenerator';
 import AdminPortal from './components/AdminPortal';
 import UpgradeModal from './components/UpgradeModal';
 import PaymentModal from './components/PaymentModal';
+import LanguageSelector from './components/LanguageSelector';
+import { Language, translations } from './translations';
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  
+  const [language, setLanguage] = useState<Language>('en');
+
+  const t = translations[language];
+
   // Hardcoded initial admin credentials as requested
   const [user, setUser] = useState<UserProfile>(() => {
     const savedUser = localStorage.getItem('sentinel_user');
@@ -136,12 +140,14 @@ const App: React.FC = () => {
         adminEmail={user.email} 
         adminPassword={user.password || ''} 
         onResetPassword={handleResetPassword}
+        currentLanguage={language}
+        onLanguageChange={setLanguage}
       />
     );
   }
 
   return (
-    <div className="flex h-screen bg-slate-900 text-white overflow-hidden font-sans relative">
+    <div className="flex h-screen bg-slate-900 text-white overflow-hidden font-sans relative" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {isSidebarOpen && (
         <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40 lg:hidden" onClick={() => setIsSidebarOpen(false)} />
       )}
@@ -161,6 +167,7 @@ const App: React.FC = () => {
         isAdmin={isAdmin}
         onClose={() => setIsSidebarOpen(false)}
         userPlan={user.plan}
+        language={language}
       />
 
       <main className="flex-1 overflow-y-auto bg-slate-50 text-slate-900 flex flex-col w-full">
@@ -172,21 +179,22 @@ const App: React.FC = () => {
             </button>
             <div>
               <h1 className="text-xl md:text-2xl font-bold text-slate-800">
-                {activeTab === 'dashboard' ? 'Security Dashboard' : 
-                 activeTab === 'security' ? 'Threat Surveillance' : 
-                 activeTab === 'admin' ? 'Admin Portal' : 'Intelligence Reports'}
+                {activeTab === 'dashboard' ? t.dashboard :
+                 activeTab === 'security' ? t.threatSurveillance :
+                 activeTab === 'admin' ? t.adminPortal : t.intelligenceReports}
               </h1>
-              <p className="text-xs text-slate-500 hidden sm:block">Systems operational • Plan: <span className="uppercase font-bold text-indigo-600">{user.plan}</span></p>
+              <p className="text-xs text-slate-500 hidden sm:block">{t.appSubtitle} <span className="uppercase font-bold text-indigo-600">{user.plan}</span></p>
             </div>
           </div>
           <div className="flex items-center gap-3">
+             <LanguageSelector currentLanguage={language} onLanguageChange={setLanguage} />
              <div className="hidden md:flex flex-col items-end mr-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">Wallet</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase">{t.walletBalance}</span>
                 <span className="text-sm font-bold text-slate-800">${user.walletBalance.toFixed(2)}</span>
              </div>
              <button onClick={() => setIsAddModalOpen(true)} className="hidden md:flex px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all shadow-lg shadow-indigo-200 items-center gap-2 font-semibold">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
-                Monitor Site
+                {t.monitorSite}
               </button>
           </div>
         </div>
@@ -200,7 +208,7 @@ const App: React.FC = () => {
                   <div>
                     <h2 className="text-xl font-semibold mb-4 text-slate-800 flex items-center gap-2">
                       <svg className="w-6 h-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                      Active Properties
+                      {t.activeProperties}
                     </h2>
                     <SiteList websites={websites} onSelectSite={setSelectedSiteId} onRemoveSite={handleRemoveWebsite} />
                   </div>
@@ -209,7 +217,7 @@ const App: React.FC = () => {
                 <div className="animate-in fade-in duration-500">
                   <button onClick={() => setSelectedSiteId(null)} className="mb-6 flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                    Back to Overview
+                    {t.backToOverview}
                   </button>
                   {selectedSite && <SiteDetails site={selectedSite} onUpdate={(updates) => handleUpdateWebsite(selectedSite.id, updates)} />}
                 </div>
@@ -221,9 +229,9 @@ const App: React.FC = () => {
             <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-500">
                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">Threat Level</p>
-                  <p className="text-3xl font-bold text-slate-800">Nominal</p>
-                  <div className="mt-2 text-xs text-green-500 font-medium">No active breaches</div>
+                  <p className="text-xs font-bold text-slate-400 uppercase mb-1">{t.threatLevel}</p>
+                  <p className="text-3xl font-bold text-slate-800">{t.nominal}</p>
+                  <div className="mt-2 text-xs text-green-500 font-medium">{t.noActiveBreaches}</div>
                 </div>
               </div>
               <SecurityEventsLog events={mockSecurityEvents} />
